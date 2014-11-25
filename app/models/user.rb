@@ -3,12 +3,13 @@ class User < ActiveRecord::Base
 	before_save { email.downcase! }
 	validates(:name, presence: true, length: { maximum: 50})
 	VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-]+(\.[a-z\d\-]+)*\.[a-z]+\z/i
-  	validates :email, presence: true, 
+  validates :email, presence: true, 
   				format: { with: VALID_EMAIL_REGEX }, 
-  				uniqueness: { case_sensitive: false }
+  				uniqueness: { case_sensitive: false },
+          length: { maximum: 100 }
 
-  	has_secure_password
-  	validates :password, length: { minimum: 6 }, allow_blank: true
+  has_secure_password
+  validates :password, length: { minimum: 6 }, allow_blank: true
 
   	# Returns the hash digest of the given string.
   def User.digest(string)
@@ -30,6 +31,7 @@ class User < ActiveRecord::Base
 
   # Returns true if the given token matches the digest.
   def authenticated?(remember_token)
+    return false if remember_digest.nil?
     BCrypt::Password.new(remember_digest).is_password?(remember_token)
   end
 
